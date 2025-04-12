@@ -1,0 +1,77 @@
+using AutoMapper;
+using BLL.DTO;
+using BLL.Services.Contracts;
+using DAL.Models;
+using DAL.UOW;
+
+namespace BLL.Services;
+
+public class WorkoutService : IWorkoutService
+{
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+    //private readonly IMemoryCache _cache;
+    
+
+    public WorkoutService(
+        IUnitOfWork unitOfWork,
+        IMapper mapper
+        //IMemoryCache cache
+    )
+    {
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        //_cache = cache;
+    }
+    
+    public async Task<IEnumerable<WorkoutResponseDTO>> GetAllWorkoutsAsync()
+    {
+        var workouts = await _unitOfWork.WorkoutRepository.GetAllAsync();
+        var result = _mapper.Map<IEnumerable<WorkoutResponseDTO>>(workouts);
+        return result;
+    }
+
+    public async Task<IEnumerable<WorkoutResponseDTO>> GetAllWorkoutsByUserIdAsync(int userId)
+    {
+        var workouts = await _unitOfWork.WorkoutRepository.GetByUserId(userId);
+        var result = _mapper.Map<IEnumerable<WorkoutResponseDTO>>(workouts);
+        return result;
+    }
+
+    public async Task<WorkoutResponseDTO> GetWorkoutByIdAsync(int id)
+    {
+        var workouts = await _unitOfWork.WorkoutRepository.GetByIdAsync(id);
+        var result = _mapper.Map<WorkoutResponseDTO>(workouts);
+        return result;
+    }
+
+    public async Task<WorkoutResponseDTO> AddWorkoutAsync(WorkoutRequestDTO workout)
+    {
+        var workoutToAdd = _mapper.Map<Workout>(workout);
+        var addedWorkout = await _unitOfWork.WorkoutRepository.AddAsync(workoutToAdd);
+        await _unitOfWork.CompleteAsync();
+        var result = _mapper.Map<WorkoutResponseDTO>(addedWorkout);
+        return result;
+    }
+
+    public async Task<WorkoutResponseDTO> UpdateWorkoutAsync(int id, WorkoutRequestDTO workout)
+    {
+        var workoutToUpdate = await _unitOfWork.WorkoutRepository.GetByIdAsync(id);
+        if (workoutToUpdate == null)
+        {
+            throw new Exception();
+        }
+        
+        _mapper.Map(workout, workoutToUpdate);
+        var updatedWorkout = await _unitOfWork.WorkoutRepository.UpdateAsync(workoutToUpdate);
+        await _unitOfWork.CompleteAsync();
+        var result = _mapper.Map<WorkoutResponseDTO>(updatedWorkout);
+        return result;
+    }
+
+    public async Task DeleteWorkoutAsync(int id)
+    {
+        await _unitOfWork.WorkoutRepository.DeleteByIdAsync(id);
+        await _unitOfWork.CompleteAsync();
+    }
+}

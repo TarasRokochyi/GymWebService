@@ -1,0 +1,14 @@
+name: GymWebService
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=GymWebService
+      - POSTGRES_USER=pgadmin
+      - POSTGRES_PASSWORD=pgadmin
+      - PGPORT=5433
+    ports:
+      - 5434:5433
+    volumes:
+      - ../sql_init:/docker-entrypoint-initdb.d
+      - ../postgres/data:/var/lib/postgresql/data
