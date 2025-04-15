@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using BLL.DTO.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace DAL.Models;
 
-public partial class User
+public partial class User : IdentityUser<int>
 {
-    public int UserId { get; set; }
-
-    public string? Name { get; set; }
-
+    public string FirstName { get; set; }
+    
+    public string LastName { get; set; }
+    
     public string? Level { get; set; }
 
     public string? Gender { get; set; }
@@ -26,4 +28,5 @@ public partial class User
     public virtual ICollection<Workout> Workouts { get; set; } = new List<Workout>();
 
     public virtual ICollection<WorkoutTemplate> WorkoutTemplates { get; set; } = new List<WorkoutTemplate>();
+    public List<RefreshToken> RefreshTokens { get; set; }
 }

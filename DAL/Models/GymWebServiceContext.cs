@@ -1,10 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
-public partial class GymWebServiceContext : DbContext
+public partial class GymWebServiceContext : IdentityDbContext<
+    User, 
+    IdentityRole<int>, 
+    int, 
+    IdentityUserClaim<int>,
+    IdentityUserRole<int>,
+    IdentityUserLogin<int>,
+    IdentityRoleClaim<int>,
+    IdentityUserToken<int>>
 {
     public GymWebServiceContext()
     {
@@ -13,8 +23,8 @@ public partial class GymWebServiceContext : DbContext
     public GymWebServiceContext(DbContextOptions<GymWebServiceContext> options)
         : base(options)
     {
-        //Database.EnsureCreated();
-        //Database.EnsureCreated();
+       // Database.EnsureDeleted();
+       // Database.EnsureCreated();
     }
 
     public virtual DbSet<Exercise> Exercises { get; set; }
@@ -33,6 +43,7 @@ public partial class GymWebServiceContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Exercise>(entity =>
         {
             entity.HasKey(e => e.ExerciseId).HasName("exercises_pkey");
@@ -60,11 +71,11 @@ public partial class GymWebServiceContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("users_pkey");
+            entity.HasKey(e => e.Id).HasName("users_pkey");
 
             entity.ToTable("users");
 
-            entity.Property(e => e.UserId).HasColumnName("userid");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Age).HasColumnName("age");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("now()")
@@ -79,7 +90,7 @@ public partial class GymWebServiceContext : DbContext
             entity.Property(e => e.Level)
                 .HasMaxLength(50)
                 .HasColumnName("level");
-            entity.Property(e => e.Name)
+            entity.Property(e => e.UserName)
                 .HasMaxLength(255)
                 .HasColumnName("name");
             entity.Property(e => e.Weight)

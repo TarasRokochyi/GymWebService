@@ -1,3 +1,5 @@
+using BLL.DTO.Identity;
+
 namespace BLL.DTO;
 
 public class UserResponseDTO
@@ -18,4 +20,5 @@ public class UserResponseDTO
     public int? Age { get; set; }
 
     public DateTime? CreatedAt { get; set; }
+    public List<RefreshToken> RefreshTokens { get; set; }
 }
