@@ -12,7 +12,7 @@ public class ExerciseRepository : GenericRepository<Exercise>, IExerciseReposito
 
     public async Task<IEnumerable<Exercise>> GetByUserId(int userId)
     {
-        var result = await table.Where(e => e.UserId == userId).ToListAsync();
+        var result = await table.Where(e => e.UserId == userId || e.UserId == null).ToListAsync();
         return result;
     }
 }

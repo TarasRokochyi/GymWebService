@@ -48,6 +48,7 @@ public class WorkoutService : IWorkoutService
     public async Task<WorkoutResponseDTO> AddWorkoutAsync(WorkoutRequestDTO workout)
     {
         var workoutToAdd = _mapper.Map<Workout>(workout);
+        workoutToAdd.Date = workout.Date.Value.ToLocalTime();
         var addedWorkout = await _unitOfWork.WorkoutRepository.AddAsync(workoutToAdd);
         await _unitOfWork.CompleteAsync();
         var result = _mapper.Map<WorkoutResponseDTO>(addedWorkout);

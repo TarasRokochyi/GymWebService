@@ -1,5 +1,6 @@
 using BLL.DTO;
 using BLL.Services.Contracts;
+using GymWebService.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymWebService.Controller;
@@ -19,7 +20,7 @@ public class WorkoutController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
+    [HttpGet("getAll")]
     public async Task<ActionResult<IEnumerable<WorkoutResponseDTO>>> GetAllWorkouts()
     {
         var result = await _workoutService.GetAllWorkoutsAsync();
@@ -33,15 +34,18 @@ public class WorkoutController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("user/{userid}")]
-    public async Task<ActionResult<IEnumerable<WorkoutResponseDTO>>> GetAllUserWorkouts(int userid)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<WorkoutResponseDTO>>> GetAllUserWorkouts()
     {
-        var result = await _workoutService.GetAllWorkoutsByUserIdAsync(userid);
+        int userId = HttpContext.GetUserId();
+        var result = await _workoutService.GetAllWorkoutsByUserIdAsync(userId);
         return Ok(result);
     }
     
     [HttpPost]
     public async Task<ActionResult> PostWorkout(WorkoutRequestDTO workoutRequest){
+        int userId = HttpContext.GetUserId();
+        workoutRequest.UserId = userId;
         var result = await _workoutService.AddWorkoutAsync(workoutRequest);
         return Ok(result);
     }

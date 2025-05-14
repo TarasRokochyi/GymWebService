@@ -39,10 +39,10 @@ public class ExerciseService : IExerciseService
         return result;
     }
 
-    public async Task<ExerciseResponseDTO> GetExerciseByUserIdAsync(int id)
+    public async Task<IEnumerable<ExerciseResponseDTO>> GetExercisesByUserIdAsync(int id)
     {
         var exercises = await _unitOfWork.ExerciseRepository.GetByUserId(id);
-        var result = _mapper.Map<ExerciseResponseDTO>(exercises);
+        var result = _mapper.Map<IEnumerable<ExerciseResponseDTO>>(exercises);
         return result;
     }
 

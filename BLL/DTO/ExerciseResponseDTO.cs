@@ -3,6 +3,8 @@ namespace BLL.DTO;
 public class ExerciseResponseDTO
 {
     public int ExerciseId { get; set; }
+    
+    public int? UserId { get; set; }
 
     public string? Name { get; set; }
 

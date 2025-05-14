@@ -1,6 +1,7 @@
 using BLL.DTO;
 using BLL.Services.Contracts;
 using DAL.Repositories.Contracts;
+using GymWebService.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymWebService.Controller;
@@ -21,11 +22,27 @@ public class WorkoutTemplateController : ControllerBase
         _logger = logger;
     }
     
+    [HttpPost("addDefault")]
+    public async Task<ActionResult> PostDefaultWorkoutTemplate(WorkoutTemplateRequestDTO workoutTemplateRequest)
+    {
+        workoutTemplateRequest.UserId = null;
+        var result = await _workoutTemplateService.AddWorkoutTemplateAsync(workoutTemplateRequest);
+        return Ok(result);
+    }
     
-    [HttpGet]
+    
+    [HttpGet("getAll")]
     public async Task<ActionResult<IEnumerable<WorkoutTemplateResponseDTO>>> GetAllWorkoutTemplates()
     {
         var result = await _workoutTemplateService.GetAllWorkoutTemplatesAsync();
+        return Ok(result);
+    }
+    
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<WorkoutTemplateResponseDTO>>> GetUserWorkoutTemplate()
+    {
+        int userId = HttpContext.GetUserId();
+        var result = await _workoutTemplateService.GetAllWorkoutTemplatesByUserIdAsync(userId);
         return Ok(result);
     }
 
@@ -36,15 +53,11 @@ public class WorkoutTemplateController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("user/{userid}")]
-    public async Task<ActionResult<IEnumerable<WorkoutTemplateResponseDTO>>> GetAllUserWorkoutTemplate(int userid)
-    {
-        var result = await _workoutTemplateService.GetAllWorkoutTemplatesByUserIdAsync(userid);
-        return Ok(result);
-    }
     
     [HttpPost]
-    public async Task<ActionResult> PostWorkoutTemplate(WorkoutTemplateRequestDTO workoutTemplateRequest){
+    public async Task<ActionResult> PostWorkoutTemplate(WorkoutTemplateRequestDTO workoutTemplateRequest)
+    {
+        workoutTemplateRequest.UserId = HttpContext.GetUserId();
         var result = await _workoutTemplateService.AddWorkoutTemplateAsync(workoutTemplateRequest);
         return Ok(result);
     }
