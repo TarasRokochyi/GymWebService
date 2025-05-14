@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace BLL.DTO.Identity;
+namespace DAL.Models;
 
 [Owned]
 public class RefreshToken

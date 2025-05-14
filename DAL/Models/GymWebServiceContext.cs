@@ -23,8 +23,8 @@ public partial class GymWebServiceContext : IdentityDbContext<
     public GymWebServiceContext(DbContextOptions<GymWebServiceContext> options)
         : base(options)
     {
-       // Database.EnsureDeleted();
-       // Database.EnsureCreated();
+        //Database.EnsureDeleted();
+        //Database.EnsureCreated();
     }
 
     public virtual DbSet<Exercise> Exercises { get; set; }

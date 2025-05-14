@@ -43,21 +43,27 @@ public class UserController : ControllerBase
         await _userService.DeleteUserAsync(id);
         return NoContent();
     }
-    
+
+
+
+    [HttpGet("test")]
+    public async Task<ActionResult> getTest()
+    {
+        return Unauthorized();
+    }
     
     
     
     
     [HttpPost("register")]
-    public async Task<ActionResult> RegisterAsync(RegisterModel model)
+    public async Task<IActionResult> RegisterAsync(RegisterModel model)
     {
         var result = await _userService.RegisterAsync(model);
         return Ok(result);
     }
     
     [HttpPost("token")]
-    public async Task<IActionResult> GetTokenAsync(TokenRequestModel model)
-    {
+    public async Task<IActionResult> GetTokenAsync(TokenRequestModel model){
         var result = await _userService.GetTokenAsync(model);
         SetRefreshTokenInCookie(result.RefreshToken);
         return Ok(result);
@@ -71,12 +77,13 @@ public class UserController : ControllerBase
     }
     
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken()
+    public async Task<IActionResult> RefreshToken(RefreshTokenRequestDTO refreshToken)
     {
-        var refreshToken = Request.Cookies["refreshToken"];
-        var response = await _userService.RefreshTokenAsync(refreshToken);
-        if (!string.IsNullOrEmpty(response.RefreshToken))
-            SetRefreshTokenInCookie(response.RefreshToken);
+        var response = await _userService.RefreshTokenAsync(refreshToken.RefreshToken);
+        if (!response.IsAuthenticated)
+        {
+            return Unauthorized();
+        }
         return Ok(response);
     }
 

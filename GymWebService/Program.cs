@@ -138,8 +138,24 @@ public class Program
         // AUTOMAPPER
         //builder.Services.AddAutoMapper(typeof(Program).Assembly);
         builder.Services.AddAutoMapper(typeof(Program));
+        
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.WithOrigins("http://localhost:4200") // 👈 Use the exact origin, not "*"
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials(); // 👈 Now allowed because origin is explicit
+            });
+        });
+
 
         var app = builder.Build();
+        
+        // for angular
+        app.UseCors("AllowFrontend");
+
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

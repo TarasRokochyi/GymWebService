@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BLL.DTO.Identity;
 using Microsoft.AspNetCore.Identity;
 
 namespace DAL.Models;

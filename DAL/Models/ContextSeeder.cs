@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using Microsoft.AspNetCore.Identity;
 using DAL.Constants;
@@ -14,7 +15,7 @@ public class ContextSeeder
         await roleManager.CreateAsync(new IdentityRole<int>(AuthorizationConst.Roles.User.ToString()));
 
         //Seed Default User
-        var defaultUser = new User { FirstName = "Taras", LastName = "Rokochyi", UserName = AuthorizationConst.default_username, Email = AuthorizationConst.default_email, EmailConfirmed = true, PhoneNumberConfirmed = true };
+        var defaultUser = new User { FirstName = "Taras", LastName = "Rokochyi", UserName = AuthorizationConst.default_username, Email = AuthorizationConst.default_email, Age = 19, Weight = 60, Height = 170, Gender = "male", Level = "intermediate", };
 
         if (userManager.Users.All(u => u.Id != defaultUser.Id))
         {
