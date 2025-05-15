@@ -1,5 +1,4 @@
 namespace DAL.Models;
-
 public class WorkoutTemplate
 {
     public int TemplateId { get; set; }

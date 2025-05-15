@@ -1,5 +1,4 @@
 namespace DAL.Models;
-
 public class WorkoutExercise
 {
     public int WorkoutExerciseId { get; set; }
@@ -7,8 +6,6 @@ public class WorkoutExercise
     public int? WorkoutId { get; set; }
 
     public int? ExerciseId { get; set; }
-
-    public string? Type { get; set; }
 
     public int? Sets { get; set; }
 
@@ -19,8 +16,6 @@ public class WorkoutExercise
     public decimal? Distance { get; set; }
 
     public int? Duration { get; set; }
-
-    public string? Notes { get; set; }
 
     public virtual Exercise? Exercise { get; set; }
 

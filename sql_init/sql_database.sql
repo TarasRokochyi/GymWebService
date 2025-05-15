@@ -6,14 +6,14 @@ CREATE TABLE Users (
     Weight Decimal(10,2),
     Height Decimal(10,2),
     Age INT,
-    CreatedAt TIMESTAMP DEFAULT NOW()
+    CreatedAt TIMESTAMP with time zone DEFAULT NOW()
 );
 
 CREATE TABLE Workouts (
     WorkoutId SERIAL PRIMARY KEY,
     UserId INT REFERENCES Users(UserId) ON DELETE CASCADE,
     Name VARCHAR(255), -- e.g., "Leg Day", "Full Body Strength"
-    Date TIMESTAMP DEFAULT NOW(),
+    Date TIMESTAMP with time zone DEFAULT NOW(),
     Duration INT, -- In minutes
     Notes TEXT
 );
@@ -37,7 +37,6 @@ CREATE TABLE WorkoutExercises (
     Weight DECIMAL(10,2), -- If applicable
     Distance DECIMAL(10,2), -- For cardio (e.g., running distance)
     Duration INT, -- Time spent on exercise in seconds
-    Notes TEXT
 );
 
 CREATE TABLE WorkoutTemplates (

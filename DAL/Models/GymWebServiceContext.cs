@@ -79,7 +79,7 @@ public partial class GymWebServiceContext : IdentityDbContext<
             entity.Property(e => e.Age).HasColumnName("age");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("now()")
-                .HasColumnType("timestamp without time zone")
+                .HasColumnType("timestamp with time zone")
                 .HasColumnName("createdat");
             entity.Property(e => e.Gender)
                 .HasMaxLength(50)
@@ -107,7 +107,7 @@ public partial class GymWebServiceContext : IdentityDbContext<
             entity.Property(e => e.WorkoutId).HasColumnName("workoutid");
             entity.Property(e => e.Date)
                 .HasDefaultValueSql("now()")
-                .HasColumnType("timestamp without time zone")
+                .HasColumnType("timestamp with time zone")
                 .HasColumnName("date");
             entity.Property(e => e.Duration).HasColumnName("duration");
             entity.Property(e => e.Name)
@@ -134,12 +134,8 @@ public partial class GymWebServiceContext : IdentityDbContext<
                 .HasColumnName("distance");
             entity.Property(e => e.Duration).HasColumnName("duration");
             entity.Property(e => e.ExerciseId).HasColumnName("exerciseid");
-            entity.Property(e => e.Notes).HasColumnName("notes");
             entity.Property(e => e.Reps).HasColumnName("reps");
             entity.Property(e => e.Sets).HasColumnName("sets");
-            entity.Property(e => e.Type)
-                .HasMaxLength(50)
-                .HasColumnName("type");
             entity.Property(e => e.Weight)
                 .HasPrecision(10, 2)
                 .HasColumnName("weight");

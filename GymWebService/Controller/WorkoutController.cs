@@ -51,8 +51,9 @@ public class WorkoutController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> PutWorkout(int id, WorkoutRequestDTO workoutRequest)
+    public async Task<ActionResult> PutWorkout(WorkoutRequestDTO workoutRequest, int id)
     {
+        workoutRequest.UserId = HttpContext.GetUserId();
         var result = await _workoutService.UpdateWorkoutAsync(id, workoutRequest);
         return Ok(result);
     }
