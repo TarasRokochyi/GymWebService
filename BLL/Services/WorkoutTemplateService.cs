@@ -37,6 +37,13 @@ public class WorkoutTemplateService : IWorkoutTemplateService
         var result = _mapper.Map<WorkoutTemplateResponseDTO>(template);
         return result;
     }
+    
+    public async Task<WorkoutTemplateResponseDTO> GetUserWorkoutTemplateByIdAsync(int userId, int id)
+    {
+        var template = await _unitOfWork.WorkoutTemplateRepository.GetUserTemplateAsync(userId, id);
+        var result = _mapper.Map<WorkoutTemplateResponseDTO>(template);
+        return result;
+    }
 
     public async Task<IEnumerable<WorkoutTemplateResponseDTO>> GetAllWorkoutTemplatesByUserIdAsync(int userId)
     {
@@ -54,19 +61,59 @@ public class WorkoutTemplateService : IWorkoutTemplateService
         return result;
     }
 
-    public async Task<WorkoutTemplateResponseDTO> UpdateWorkoutTemplateAsync(int id, WorkoutTemplateRequestDTO template)
+    public async Task<WorkoutTemplateResponseDTO> UpdateUserWorkoutTemplateAsync(int userId, int id, WorkoutTemplateRequestDTO template)
     {
-        var workoutTemplate = _mapper.Map<WorkoutTemplate>(template);
-        workoutTemplate.TemplateId = id;
-        var updatedWorkoutTemplate = await _unitOfWork.WorkoutTemplateRepository.UpdateAsync(workoutTemplate);
+        var templateToUpdate = await _unitOfWork.WorkoutTemplateRepository.GetUserTemplateAsync(userId, id);
+        if (templateToUpdate != null)
+        {
+            throw new Exception("Not Found");
+        }
+        
+        _mapper.Map(template, templateToUpdate);
+        
+        var updatedWorkoutTemplate = await _unitOfWork.WorkoutTemplateRepository.UpdateAsync(templateToUpdate);
+        await _unitOfWork.CompleteAsync();
+        var result = _mapper.Map<WorkoutTemplateResponseDTO>(updatedWorkoutTemplate);
+        return result;
+    }
+    
+    public async Task<WorkoutTemplateResponseDTO> UpdateDefaultWorkoutTemplateAsync(int id, WorkoutTemplateRequestDTO template)
+    {
+        var templateToUpdate = await _unitOfWork.WorkoutTemplateRepository.GetByIdAsync(id);
+        if (templateToUpdate != null)
+        {
+            throw new Exception("Not Found");
+        }
+        
+        _mapper.Map(template, templateToUpdate);
+        
+        var updatedWorkoutTemplate = await _unitOfWork.WorkoutTemplateRepository.UpdateAsync(templateToUpdate);
         await _unitOfWork.CompleteAsync();
         var result = _mapper.Map<WorkoutTemplateResponseDTO>(updatedWorkoutTemplate);
         return result;
     }
 
-    public async Task DeleteWorkoutTemplateAsync(int id)
+    public async Task DeleteUserWorkoutTemplateAsync(int userId, int id)
     {
+        var templateToUpdate = await _unitOfWork.WorkoutTemplateRepository.GetUserTemplateAsync(userId, id);
+        if (templateToUpdate != null)
+        {
+            throw new Exception("Not Found");
+        }
+        
         await _unitOfWork.WorkoutTemplateRepository.DeleteByIdAsync(id);
+        await _unitOfWork.CompleteAsync();
+    }
+    
+    public async Task DeleteDefaultWorkoutTemplateAsync(int id)
+    {
+        var templateToDelete = await _unitOfWork.WorkoutTemplateRepository.GetByIdAsync(id);
+        if (templateToDelete != null)
+        {
+            throw new Exception("Not Found");
+        }
+        
+        await _unitOfWork.WorkoutTemplateRepository.DeleteAsync(templateToDelete);
         await _unitOfWork.CompleteAsync();
     }
 }

@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using BLL.DTO.Identity;
 using DAL.Constants;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BLL.Services;
@@ -43,24 +44,47 @@ public class UserService : IUserService
     
     public async Task<IEnumerable<UserResponseDTO>> GetAllUsersAsync()
     {
-        var users = await _unitOfWork.UserRepository.GetAllAsync();
+        //var users = await _unitOfWork.UserRepository.GetAllAsync();
+        var users = await _userManager.Users.ToListAsync();
         var result = _mapper.Map<IEnumerable<UserResponseDTO>>(users);
         return result;
     }
 
     public async Task<UserResponseDTO> UpdateUserAsync(int id, UserRequestDTO user)
     {
-        var userToUpdate = _mapper.Map<User>(user);
-        userToUpdate.Id = id;
-        var updatedUser = await _unitOfWork.UserRepository.UpdateAsync(userToUpdate);
+        var user1 = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var userToUpdate = _mapper.Map(user, user1);
+        //userToUpdate.Id = id;
+        var identityResult = await _userManager.UpdateAsync(userToUpdate);
         await _unitOfWork.CompleteAsync();
+        var updatedUser = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
         var result = _mapper.Map<UserResponseDTO>(updatedUser);
         return result;
+    }
+    
+    public async Task<string> UpdatePasswordAsync(int id, UpdatePasswordRequest request)
+    {
+        var user = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+
+        if (user == null)
+            return "User not found.";
+        try
+        {
+            await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+            await _unitOfWork.CompleteAsync();
+
+            return "Password updated successfully.";
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"An error occurred when changing password: {ex.Message}");
+        }
     }
 
     public async Task DeleteUserAsync(int id)
     {
-        await _unitOfWork.UserRepository.DeleteByIdAsync(id);
+        var user = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+        _userManager.DeleteAsync(user);
         await _unitOfWork.CompleteAsync();
     }
     
@@ -197,10 +221,10 @@ public class UserService : IUserService
         return authenticationModel;
     }
 
-    public UserResponseDTO GetById(int id)
+    public async Task<UserResponseDTO> GetByIdAsync(int id)
     {
-        var users = _context.Users.Find(id);
-        var result = _mapper.Map<UserResponseDTO>(users);
+        var user = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+        var result = _mapper.Map<UserResponseDTO>(user);
         return result;
     }
     

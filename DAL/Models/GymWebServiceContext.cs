@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DAL.Constants;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,7 @@ public partial class GymWebServiceContext : IdentityDbContext<
         : base(options)
     {
         //Database.EnsureDeleted();
-        //Database.EnsureCreated();
+        Database.EnsureCreated();
     }
 
     public virtual DbSet<Exercise> Exercises { get; set; }
@@ -170,6 +171,220 @@ public partial class GymWebServiceContext : IdentityDbContext<
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("workouttemplates_userid_fkey");
         });
+        
+        modelBuilder.Entity<IdentityRole<int>>().HasData(new List<IdentityRole<int>>
+        {
+            new IdentityRole<int> {
+                Id = 1,
+                Name = "Admin",
+                NormalizedName = "ADMIN"
+            },
+            new IdentityRole<int> {
+                Id = 2,
+                Name = "User",
+                NormalizedName = "USER"
+            }
+        });
+        
+        var hasher = new PasswordHasher<User>();
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = 1, // primary key
+                FirstName = "main",
+                LastName = "admin",
+                UserName = "admin",
+                Email = "admin@example.com",
+                PasswordHash = hasher.HashPassword(null, "admin")
+            },
+            new User
+            {
+                Id = 2, // primary key
+                FirstName = "default",
+                LastName = "user",
+                UserName = AuthorizationConst.default_username,
+                Email = AuthorizationConst.default_email,
+                PasswordHash = hasher.HashPassword(null, AuthorizationConst.default_password)
+            }
+        );
+        
+        modelBuilder.Entity<IdentityUserRole<int>>().HasData(
+            new IdentityUserRole<int>
+            {
+                RoleId = 1, // for admin username
+                UserId = 1,// for admin role
+            },
+            new IdentityUserRole<int>
+            {
+                RoleId = 2, // for admin username
+                UserId = 2, // for admin role
+            }
+        );
+
+        modelBuilder.Entity<Exercise>().HasData(
+            new Exercise{
+                ExerciseId = 1,
+                UserId = null,
+                Name = "Pull ups",
+                Category = "Strength",
+                MuscleGroups = "back, arms",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 2,
+                UserId = null,
+                Name = "Squats",
+                Category = "Strength",
+                MuscleGroups = "Quadriceps, Glutes",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 3,
+                UserId = null,
+                Name = "Dips",
+                Category = "Strength",
+                MuscleGroups = "Triceps, Chest, Shoulders",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 4,
+                UserId = null,
+                Name = "Biceps curls",
+                Category = "Strength",
+                MuscleGroups = "Biceps",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 5,
+                UserId = null,
+                Name = "Deadlift",
+                Category = "Strength",
+                MuscleGroups = "Hamstring, Glutes, Quadriceps",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 6,
+                UserId = null,
+                Name = "Running",
+                Category = "Cardio",
+                MuscleGroups = "legs",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 7,
+                UserId = null,
+                Name = "Swimming",
+                Category = "Cardio",
+                MuscleGroups = "Upper body",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 8,
+                UserId = null,
+                Name = "Bicycle",
+                Category = "Cardio",
+                MuscleGroups = "Quadriceps",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 9,
+                UserId = null,
+                Name = "Walking",
+                Category = "Cardio",
+                MuscleGroups = "Whole body",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 10,
+                UserId = null,
+                Name = "Rowing",
+                Category = "Cardio",
+                MuscleGroups = "Whole body",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 11,
+                UserId = null,
+                Name = "Bench press",
+                Category = "Strength",
+                MuscleGroups = "Chest, Triceps",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 12,
+                UserId = null,
+                Name = "Bent-over row",
+                Category = "Strength",
+                MuscleGroups = "Chest, Triceps",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 13,
+                UserId = null,
+                Name = "Romanian deadlifts",
+                Category = "Strength",
+                MuscleGroups = "Hamstring, Glutes",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 14,
+                UserId = null,
+                Name = "Split squats",
+                Category = "Strength",
+                MuscleGroups = "Quadriceps",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 15,
+                UserId = null,
+                Name = "Bulgarian split squats",
+                Category = "Strength",
+                MuscleGroups = "Quadriceps, Glutes",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 16,
+                UserId = null,
+                Name = "Standing overhead press",
+                Category = "Strength",
+                MuscleGroups = "Shoulders, triceps",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 17,
+                UserId = null,
+                Name = "Hammer curls",
+                Category = "Strength",
+                MuscleGroups = "Shoulders, triceps",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 18,
+                UserId = null,
+                Name = "Pistol squats",
+                Category = "Strength",
+                MuscleGroups = "Quadriceps",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 19,
+                UserId = null,
+                Name = "Wrist curls",
+                Category = "Strength",
+                MuscleGroups = "Forearm",
+                Description = ""
+            },
+            new Exercise{
+                ExerciseId = 20,
+                UserId = null,
+                Name = "Muscle ups",
+                Category = "Strength",
+                MuscleGroups = "Upper body",
+                Description = ""
+            }
+        );
+        
+        
 
         OnModelCreatingPartial(modelBuilder);
     }

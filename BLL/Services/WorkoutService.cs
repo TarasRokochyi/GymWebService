@@ -33,7 +33,7 @@ public class WorkoutService : IWorkoutService
 
     public async Task<IEnumerable<WorkoutResponseDTO>> GetAllWorkoutsByUserIdAsync(int userId)
     {
-        var workouts = await _unitOfWork.WorkoutRepository.GetByUserId(userId);
+        var workouts = await _unitOfWork.WorkoutRepository.GetByUserIdAsync(userId);
         var result = _mapper.Map<IEnumerable<WorkoutResponseDTO>>(workouts);
         return result;
     }
@@ -41,6 +41,13 @@ public class WorkoutService : IWorkoutService
     public async Task<WorkoutResponseDTO> GetWorkoutByIdAsync(int id)
     {
         var workouts = await _unitOfWork.WorkoutRepository.GetByIdAsync(id);
+        var result = _mapper.Map<WorkoutResponseDTO>(workouts);
+        return result;
+    }
+    
+    public async Task<WorkoutResponseDTO> GetUserWorkoutByIdAsync(int userId, int id)
+    {
+        var workouts = await _unitOfWork.WorkoutRepository.GetUserWorkoutAsync(userId, id);
         var result = _mapper.Map<WorkoutResponseDTO>(workouts);
         return result;
     }
@@ -54,12 +61,12 @@ public class WorkoutService : IWorkoutService
         return result;
     }
 
-    public async Task<WorkoutResponseDTO> UpdateWorkoutAsync(int id, WorkoutRequestDTO workout)
+    public async Task<WorkoutResponseDTO> UpdateUserWorkoutAsync(int userId, int id, WorkoutRequestDTO workout)
     {
-        var workoutToUpdate = await _unitOfWork.WorkoutRepository.GetByIdAsync(id);
+        var workoutToUpdate = await _unitOfWork.WorkoutRepository.GetUserWorkoutAsync(userId, id);
         if (workoutToUpdate == null)
         {
-            throw new Exception();
+            throw new Exception("Not found.");
         }
         
         _mapper.Map(workout, workoutToUpdate);
@@ -71,7 +78,23 @@ public class WorkoutService : IWorkoutService
 
     public async Task DeleteWorkoutAsync(int id)
     {
-        await _unitOfWork.WorkoutRepository.DeleteByIdAsync(id);
+        var workoutToDelete = await _unitOfWork.WorkoutRepository.GetByIdAsync(id);
+        if (workoutToDelete != null)
+        {
+            throw new Exception("Not Found");
+        }
+        await _unitOfWork.WorkoutRepository.DeleteAsync(workoutToDelete);
+        await _unitOfWork.CompleteAsync();
+    }
+    
+    public async Task DeleteUserWorkoutAsync(int userId, int id)
+    {
+        var workoutToDelete = await _unitOfWork.WorkoutRepository.GetUserWorkoutAsync(userId, id);
+        if (workoutToDelete != null)
+        {
+            throw new Exception("Not Found");
+        }
+        await _unitOfWork.WorkoutRepository.DeleteAsync(workoutToDelete);
         await _unitOfWork.CompleteAsync();
     }
 }

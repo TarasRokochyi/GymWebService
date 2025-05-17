@@ -8,8 +8,8 @@ public class AuthorizationConst
         Moderator,
         User
     }
-    public const string default_username = "user";
-    public const string default_email = "user@secureapi.com";
-    public const string default_password = "Pa$$w0rd.";
+    public const string default_username = "defaultUser";
+    public const string default_email = "defusr@example.com";
+    public const string default_password = "defusr";
     public const Roles default_role = Roles.User;
 }

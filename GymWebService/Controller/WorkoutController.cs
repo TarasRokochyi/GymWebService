@@ -20,20 +20,6 @@ public class WorkoutController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet("getAll")]
-    public async Task<ActionResult<IEnumerable<WorkoutResponseDTO>>> GetAllWorkouts()
-    {
-        var result = await _workoutService.GetAllWorkoutsAsync();
-        return Ok(result);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<WorkoutResponseDTO>> GetWorkout(int id)
-    {
-        var result = await _workoutService.GetWorkoutByIdAsync(id);
-        return Ok(result);
-    }
-
     [HttpGet]
     public async Task<ActionResult<IEnumerable<WorkoutResponseDTO>>> GetAllUserWorkouts()
     {
@@ -42,6 +28,14 @@ public class WorkoutController : ControllerBase
         return Ok(result);
     }
     
+    [HttpGet("{id}")]
+    public async Task<ActionResult<WorkoutResponseDTO>> GetUserWorkout(int id)
+    {
+        var userId = HttpContext.GetUserId();
+        var result = await _workoutService.GetUserWorkoutByIdAsync(userId, id);
+        return Ok(result);
+    }
+
     [HttpPost]
     public async Task<ActionResult> PostWorkout(WorkoutRequestDTO workoutRequest){
         int userId = HttpContext.GetUserId();
@@ -51,17 +45,20 @@ public class WorkoutController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> PutWorkout(WorkoutRequestDTO workoutRequest, int id)
+    public async Task<ActionResult> PutUserWorkout(int id, WorkoutRequestDTO workoutRequest)
     {
-        workoutRequest.UserId = HttpContext.GetUserId();
-        var result = await _workoutService.UpdateWorkoutAsync(id, workoutRequest);
+        var userId = HttpContext.GetUserId();
+        var result = await _workoutService.UpdateUserWorkoutAsync(userId, id, workoutRequest);
         return Ok(result);
     }
-
+    
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteWorkout(int id)
+    public async Task<ActionResult> DeleteUserWorkout(int id)
     {
-        await _workoutService.DeleteWorkoutAsync(id);
+        var userId = HttpContext.GetUserId();
+        await _workoutService.DeleteUserWorkoutAsync(userId, id);
         return NoContent();
     }
+    
+    
 }

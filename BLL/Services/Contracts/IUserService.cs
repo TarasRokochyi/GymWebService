@@ -8,12 +8,13 @@ public interface IUserService
 {
     Task<IEnumerable<UserResponseDTO>> GetAllUsersAsync();
     Task<UserResponseDTO> UpdateUserAsync(int id, UserRequestDTO user);
+    Task<string> UpdatePasswordAsync(int id, UpdatePasswordRequest request);
     Task DeleteUserAsync(int id);
     
     Task<string> RegisterAsync(RegisterModel model);
     Task<AuthenticationModel> GetTokenAsync(TokenRequestModel model);
     Task<string> AddRoleAsync(AddRoleModel model);
     Task<AuthenticationModel> RefreshTokenAsync(string token);
-    UserResponseDTO GetById(int id);
+    Task<UserResponseDTO> GetByIdAsync(int id);
     bool RevokeToken(string token);
 }

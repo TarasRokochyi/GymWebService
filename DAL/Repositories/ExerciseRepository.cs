@@ -10,9 +10,17 @@ public class ExerciseRepository : GenericRepository<Exercise>, IExerciseReposito
     {
     }
 
-    public async Task<IEnumerable<Exercise>> GetByUserId(int userId)
+    public async Task<IEnumerable<Exercise>> GetByUserIdAsync(int userId)
     {
         var result = await table.Where(e => e.UserId == userId || e.UserId == null).ToListAsync();
         return result;
     }
+    
+    public async Task<Exercise> GetUserExerciseAsync(int userId, int exerciseId)
+    {
+        var result = await table.Where(e => e.UserId == userId || e.ExerciseId == exerciseId).FirstOrDefaultAsync();
+        return result;
+    }
+    
+    
 }

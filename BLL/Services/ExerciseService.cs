@@ -38,10 +38,17 @@ public class ExerciseService : IExerciseService
         var result = _mapper.Map<ExerciseResponseDTO>(exercise);
         return result;
     }
+    
+    public async Task<ExerciseResponseDTO> GetUserExerciseByIdAsync(int userId, int id)
+    {
+        var exercise = await _unitOfWork.ExerciseRepository.GetUserExerciseAsync(userId, id);
+        var result = _mapper.Map<ExerciseResponseDTO>(exercise);
+        return result;
+    }
 
     public async Task<IEnumerable<ExerciseResponseDTO>> GetExercisesByUserIdAsync(int id)
     {
-        var exercises = await _unitOfWork.ExerciseRepository.GetByUserId(id);
+        var exercises = await _unitOfWork.ExerciseRepository.GetByUserIdAsync(id);
         var result = _mapper.Map<IEnumerable<ExerciseResponseDTO>>(exercises);
         return result;
     }
@@ -55,7 +62,23 @@ public class ExerciseService : IExerciseService
         return result;
     }
 
-    public async Task<ExerciseResponseDTO> UpdateExerciseAsync(int id, ExerciseRequestDTO exercise)
+    public async Task<ExerciseResponseDTO> UpdateUserExerciseAsync(int userId, int id, ExerciseRequestDTO exercise)
+    {
+        var exerciseToUpdate = await  _unitOfWork.ExerciseRepository.GetUserExerciseAsync(userId, id);
+        if (exerciseToUpdate is null)
+        {
+            throw new Exception("Not Found");
+        }
+        
+        _mapper.Map(exercise, exerciseToUpdate);
+        
+        var exerciseResult = await _unitOfWork.ExerciseRepository.UpdateAsync(exerciseToUpdate);
+        await _unitOfWork.CompleteAsync();
+        var result = _mapper.Map<ExerciseResponseDTO>(exerciseResult);
+        return result;
+    }
+    
+    public async Task<ExerciseResponseDTO> UpdateDefaultExerciseAsync(int id, ExerciseRequestDTO exercise)
     {
         var exerciseToUpdate = await  _unitOfWork.ExerciseRepository.GetByIdAsync(id);
         if (exerciseToUpdate is null)
@@ -71,9 +94,25 @@ public class ExerciseService : IExerciseService
         return result;
     }
 
-    public async Task DeleteExerciseAsync(int id)
+    public async Task DeleteUserExerciseAsync(int userId, int id)
     {
-        await _unitOfWork.ExerciseRepository.DeleteByIdAsync(id);
+        var exerciseToDelete = await _unitOfWork.ExerciseRepository.GetUserExerciseAsync(userId, id);
+        if (exerciseToDelete != null)
+        {
+            throw new Exception("Not Found");
+        }
+        await _unitOfWork.ExerciseRepository.DeleteAsync(exerciseToDelete);
+        await _unitOfWork.CompleteAsync();
+    }
+    
+    public async Task DeleteDefaultExerciseAsync(int id)
+    {
+        var exerciseToDelete = await _unitOfWork.ExerciseRepository.GetByIdAsync(id);
+        if (exerciseToDelete != null)
+        {
+            throw new Exception("Not Found");
+        }
+        await _unitOfWork.ExerciseRepository.DeleteAsync(exerciseToDelete);
         await _unitOfWork.CompleteAsync();
     }
 }

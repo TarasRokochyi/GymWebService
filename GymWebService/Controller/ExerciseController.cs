@@ -2,14 +2,15 @@ using BLL.DTO;
 using BLL.Services.Contracts;
 using DAL.Models;
 using GymWebService.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymWebService.Controller;
 
 [ApiController]
-
 [Route("/api/[controller]")]
-
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ExerciseController : ControllerBase
 {
     private readonly ILogger<WorkoutController> _logger;
@@ -21,21 +22,6 @@ public class ExerciseController : ControllerBase
         _logger = logger;
     }
     
-    [HttpPost("addDefault")]
-    public async Task<ActionResult<ExerciseResponseDTO>> PostDefaultExercise(ExerciseRequestDTO exercise)
-    {
-        exercise.UserId = null;
-        var result = await _exerciseService.AddExerciseAsync(exercise);
-        return Ok(result);
-    }
-
-    [HttpGet("getAll")]
-    public async Task<ActionResult<IEnumerable<ExerciseResponseDTO>>> GetAllExercises()
-    {
-        var result = await _exerciseService.GetAllExercisesAsync();
-        return Ok(result);
-    }
-
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ExerciseResponseDTO>>> GetUserExercises()
     {
@@ -43,11 +29,12 @@ public class ExerciseController : ControllerBase
         var result = await _exerciseService.GetExercisesByUserIdAsync(userId);
         return Ok(result);
     }
-
+    
     [HttpGet("{id}")]
-    public async Task<ActionResult<ExerciseResponseDTO>> GetExercise(int id)
+    public async Task<ActionResult<ExerciseResponseDTO>> GetUserExercise(int id)
     {
-        var result = await _exerciseService.GetExerciseByIdAsync(id);
+        var userId = HttpContext.GetUserId();
+        var result = await _exerciseService.GetUserExerciseByIdAsync(userId, id);
         return Ok(result);
     }
 
@@ -60,16 +47,18 @@ public class ExerciseController : ControllerBase
     }
     
     [HttpPut("{id}")]
-    public async Task<ActionResult<ExerciseResponseDTO>> PutExercise(int id, ExerciseRequestDTO exercise)
+    public async Task<ActionResult<ExerciseResponseDTO>> PutUserExercise(int id, ExerciseRequestDTO exercise)
     {
-        var result = await _exerciseService.UpdateExerciseAsync(id, exercise);
+        var userId = HttpContext.GetUserId();
+        var result = await _exerciseService.UpdateUserExerciseAsync(userId, id, exercise);
         return Ok(result);
     }
-
+    
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteExercise(int id)
+    public async Task<ActionResult> DeleteUserExercise(int id)
     {
-        await _exerciseService.DeleteExerciseAsync(id);
+        int userId = HttpContext.GetUserId();
+        await _exerciseService.DeleteUserExerciseAsync(userId, id);
         return NoContent();
     }
 }

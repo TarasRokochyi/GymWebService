@@ -15,4 +15,10 @@ public class WorkoutTemplateRepository : GenericRepository<WorkoutTemplate>, IWo
         var result = await table.Where(t => t.UserId == userId || t.UserId == null).ToListAsync();
         return result;
     }
+
+    public async Task<WorkoutTemplate> GetUserTemplateAsync(int userId, int id)
+    {
+        var result = await table.Where(t => t.UserId == userId || t.TemplateId == id).FirstOrDefaultAsync();
+        return result;
+    }
 }

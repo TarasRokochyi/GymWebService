@@ -1,8 +1,11 @@
+using System.Net;
 using BLL.DTO;
 using BLL.DTO.Identity;
 using BLL.Services.Contracts;
 using DAL.Models;
 using DAL.UOW;
+using GymWebService.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +14,7 @@ namespace GymWebService.Controller;
 
 [ApiController]
 [Route("/api/[controller]")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class UserController : ControllerBase
 {
     private readonly ILogger<UserController> _logger;
@@ -22,39 +26,40 @@ public class UserController : ControllerBase
         _logger = logger;
         _userService = userService;
     }
-    
+
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetAllUsers()
+    public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetUser()
     {
-        var result = await _userService.GetAllUsersAsync();
+        var userId = HttpContext.GetUserId();
+        var result = await _userService.GetByIdAsync(userId);
         return Ok(result);
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<UserResponseDTO>> UpdateUser(int id, UserRequestDTO user)
+    [HttpPut]
+    public async Task<ActionResult<UserResponseDTO>> UpdateUser(UserRequestDTO user)
     {
-        var result = await _userService.UpdateUserAsync(id, user);
+        var userId = HttpContext.GetUserId();
+        var result = await _userService.UpdateUserAsync(userId, user);
+        return Ok(result);
+    }
+    
+    [HttpPut("update-password")]
+    public async Task<IActionResult> UpdatePassword(UpdatePasswordRequest request)
+    {
+        var userId = HttpContext.GetUserId();
+        var result = await _userService.UpdatePasswordAsync(userId, request);
+
         return Ok(result);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteUser(int id)
+    [HttpDelete]
+    public async Task<ActionResult> DeleteUser()
     {
-        await _userService.DeleteUserAsync(id);
+        var userId = HttpContext.GetUserId();
+        await _userService.DeleteUserAsync(userId);
         return NoContent();
     }
 
-
-
-    [HttpGet("test")]
-    public async Task<ActionResult> getTest()
-    {
-        return Unauthorized();
-    }
-    
-    
-    
-    
     [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync(RegisterModel model)
     {
@@ -86,14 +91,6 @@ public class UserController : ControllerBase
         return Ok(response);
     }
 
-    [Authorize]
-    [HttpPost("tokens/{id}")]
-    public IActionResult GetRefreshTokens(int id)
-    {
-        var user = _userService.GetById(id);
-        return Ok(user.RefreshTokens);
-    }
-
     [HttpPost("revoke-token")]
     public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest model)
     {
@@ -110,15 +107,4 @@ public class UserController : ControllerBase
 
         return Ok(new { message = "Token revoked" });
     }
-    
-    private void SetRefreshTokenInCookie(string refreshToken)
-    {
-        var cookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Expires = DateTime.UtcNow.AddDays(10),
-        };
-        Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
-    }
-    
 }

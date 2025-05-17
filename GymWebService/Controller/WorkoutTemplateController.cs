@@ -2,6 +2,7 @@ using BLL.DTO;
 using BLL.Services.Contracts;
 using DAL.Repositories.Contracts;
 using GymWebService.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymWebService.Controller;
@@ -22,24 +23,8 @@ public class WorkoutTemplateController : ControllerBase
         _logger = logger;
     }
     
-    [HttpPost("addDefault")]
-    public async Task<ActionResult> PostDefaultWorkoutTemplate(WorkoutTemplateRequestDTO workoutTemplateRequest)
-    {
-        workoutTemplateRequest.UserId = null;
-        var result = await _workoutTemplateService.AddWorkoutTemplateAsync(workoutTemplateRequest);
-        return Ok(result);
-    }
-    
-    
-    [HttpGet("getAll")]
-    public async Task<ActionResult<IEnumerable<WorkoutTemplateResponseDTO>>> GetAllWorkoutTemplates()
-    {
-        var result = await _workoutTemplateService.GetAllWorkoutTemplatesAsync();
-        return Ok(result);
-    }
-    
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<WorkoutTemplateResponseDTO>>> GetUserWorkoutTemplate()
+    public async Task<ActionResult<IEnumerable<WorkoutTemplateResponseDTO>>> GetUserWorkoutTemplates()
     {
         int userId = HttpContext.GetUserId();
         var result = await _workoutTemplateService.GetAllWorkoutTemplatesByUserIdAsync(userId);
@@ -47,12 +32,12 @@ public class WorkoutTemplateController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<WorkoutTemplateResponseDTO>> GetWorkoutTemplates(int id)
+    public async Task<ActionResult<WorkoutTemplateResponseDTO>> GetUserWorkoutTemplate(int id)
     {
-        var result = await _workoutTemplateService.GetWorkoutTemplateByIdAsync(id);
+        var userId = HttpContext.GetUserId();
+        var result = await _workoutTemplateService.GetUserWorkoutTemplateByIdAsync(userId, id);
         return Ok(result);
     }
-
     
     [HttpPost]
     public async Task<ActionResult> PostWorkoutTemplate(WorkoutTemplateRequestDTO workoutTemplateRequest)
@@ -63,16 +48,19 @@ public class WorkoutTemplateController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> PutWorkoutTemplate(int id, WorkoutTemplateRequestDTO workoutTemplateRequest)
+    public async Task<ActionResult> PutUserWorkoutTemplate(int id, WorkoutTemplateRequestDTO workoutTemplateRequest)
     {
-        var result = await _workoutTemplateService.UpdateWorkoutTemplateAsync(id, workoutTemplateRequest);
+        var userId = HttpContext.GetUserId();
+        var result = await _workoutTemplateService.UpdateUserWorkoutTemplateAsync(userId, id, workoutTemplateRequest);
         return Ok(result);
     }
+    
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteWorkoutTemplate(int id)
+    public async Task<ActionResult> DeleteUserWorkoutTemplate(int id)
     {
-        await _workoutTemplateService.DeleteWorkoutTemplateAsync(id);
+        var userId = HttpContext.GetUserId();
+        await _workoutTemplateService.DeleteUserWorkoutTemplateAsync(userId, id);
         return NoContent();
     }
     

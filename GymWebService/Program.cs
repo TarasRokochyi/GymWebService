@@ -13,7 +13,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace GymWebService;
-
 public class Program
 {
     public static async Task Main(string[] args)
@@ -35,18 +34,20 @@ public class Program
         builder.Configuration.SetBasePath(Directory.GetCurrentDirectory());
         if (builder.Environment.IsDevelopment())
         {
+            Console.WriteLine("In dev");
             builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true);
             builder.Services.AddDbContext<GymWebServiceContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DockerPostgreSQLConnection")));
         }
         else if (builder.Environment.IsProduction())
         {
+            Console.WriteLine("In prod");
             builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             builder.Services.AddDbContext<GymWebServiceContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("ConnectionStringPostgres")));
         }
         
+        // Configure IDENTITY
         builder.Services.AddIdentity<User, IdentityRole<int>>().AddEntityFrameworkStores<GymWebServiceContext>();
         builder.Services.AddScoped<IUserService, UserService>();
-        // Configure IDENTITY
         builder.Services.Configure<IdentityOptions>(options =>
         {
             options.Password.RequireDigit = false;
@@ -58,15 +59,17 @@ public class Program
         });
         
         // SEED DATABASE
-        var userManager = builder.Services.BuildServiceProvider().GetRequiredService<UserManager<User>>();
-        var roleManager = builder.Services.BuildServiceProvider().GetRequiredService<RoleManager<IdentityRole<int>>>();
-        await ContextSeeder.SeedEssentialsAsync(userManager, roleManager);
+        //var userManager = builder.Services.BuildServiceProvider().GetRequiredService<UserManager<User>>();
+        //var roleManager = builder.Services.BuildServiceProvider().GetRequiredService<RoleManager<IdentityRole<int>>>();
+        //await ContextSeeder.SeedEssentialsAsync(userManager, roleManager);
         
         //Configuration from AppSettings
         builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
         
         // Adding Authentication - JWT
-        builder.Services.AddAuthentication(options =>
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -83,12 +86,41 @@ public class Program
                     ValidateLifetime = false,
                     ClockSkew = TimeSpan.Zero,
 
+
                     ValidIssuer = builder.Configuration["JWT:Issuer"],
                     ValidAudience = builder.Configuration["JWT:Audience"],
                     IssuerSigningKey =
                         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
                 };
             });
+        }
+        else 
+        {
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(o =>
+            {
+                o.RequireHttpsMetadata = false;
+                o.SaveToken = false;
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = false,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    ClockSkew = TimeSpan.Zero,
+
+                    ValidIssuer = Environment.GetEnvironmentVariable("JWT_Issuer"),
+                    ValidAudience = Environment.GetEnvironmentVariable("JWT_Audience"),
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_Key")))
+                };
+            });
+        }
+        
         builder.Services.AddControllers();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -143,10 +175,20 @@ public class Program
         {
             options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins("http://localhost:4200") // 👈 Use the exact origin, not "*"
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials(); // 👈 Now allowed because origin is explicit
+                if (builder.Environment.IsDevelopment())
+                {
+                    policy.WithOrigins("http://localhost:4200") // 👈 Use the exact origin, not "*"
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials(); // 👈 Now allowed because origin is explicit
+                }
+                else 
+                {
+                    policy.WithOrigins(Environment.GetEnvironmentVariable("FRONTEND_URL")) // 👈 Use the exact origin, not "*"
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials(); // 👈 Now allowed because origin is explicit
+                }
             });
         });
 
@@ -158,11 +200,11 @@ public class Program
 
 
         // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
+        //if (app.Environment.IsDevelopment())
+        //{
             app.UseSwagger();
             app.UseSwaggerUI();
-        }
+        //}
 
         app.UseHttpsRedirection();
 

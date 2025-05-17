@@ -4,5 +4,6 @@ namespace DAL.Repositories.Contracts;
 
 public interface IExerciseRepository : IGenericRepository<Exercise>
 {
-    Task<IEnumerable<Exercise>> GetByUserId(int userId);
+    Task<IEnumerable<Exercise>> GetByUserIdAsync(int userId);
+    Task<Exercise> GetUserExerciseAsync(int userId, int exerciseId);
 }

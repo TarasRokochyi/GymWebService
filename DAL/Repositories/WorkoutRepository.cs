@@ -16,9 +16,15 @@ public class WorkoutRepository : GenericRepository<Workout>, IWorkoutRepository
         return result;
     }
 
-    public async Task<IEnumerable<Workout>> GetByUserId(int userId)
+    public async Task<IEnumerable<Workout>> GetByUserIdAsync(int userId)
     {
         var result = await table.Where(t => t.UserId == userId).ToListAsync();
+        return result;
+    }
+
+    public async Task<Workout> GetUserWorkoutAsync(int userId, int id)
+    {
+        var result = await table.Where(w => w.UserId == userId && w.WorkoutId == id).FirstOrDefaultAsync();
         return result;
     }
 }
