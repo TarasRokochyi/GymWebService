@@ -46,7 +46,10 @@ public class Program
         }
         
         // Configure IDENTITY
-        builder.Services.AddIdentity<User, IdentityRole<int>>().AddEntityFrameworkStores<GymWebServiceContext>();
+        builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+            {
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456788-._@+/ ";
+            }).AddEntityFrameworkStores<GymWebServiceContext>( );
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.Configure<IdentityOptions>(options =>
         {

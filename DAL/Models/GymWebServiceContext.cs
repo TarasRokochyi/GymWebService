@@ -194,7 +194,9 @@ public partial class GymWebServiceContext : IdentityDbContext<
                 FirstName = "main",
                 LastName = "admin",
                 UserName = "admin",
+                NormalizedUserName = "ADMIN",
                 Email = "admin@example.com",
+                NormalizedEmail = "ADMIN@EXAMPLE.COM",
                 PasswordHash = hasher.HashPassword(null, "admin")
             },
             new User
@@ -203,7 +205,9 @@ public partial class GymWebServiceContext : IdentityDbContext<
                 FirstName = "default",
                 LastName = "user",
                 UserName = AuthorizationConst.default_username,
+                NormalizedUserName = AuthorizationConst.default_username.ToUpper(),
                 Email = AuthorizationConst.default_email,
+                NormalizedEmail = AuthorizationConst.default_email.ToUpper(),
                 PasswordHash = hasher.HashPassword(null, AuthorizationConst.default_password)
             }
         );

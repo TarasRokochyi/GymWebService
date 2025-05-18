@@ -1,7 +1,7 @@
 name: GymWebService
 services:
   api:
-    image: gymwebservice:latest
+    image: ghcr.io/tarasrokochyi/gymwebservice:latest
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStringPostgres=Host=postgres;Port=5433;Database=GymWebService;Username=pgadmin;Password=pgadmin

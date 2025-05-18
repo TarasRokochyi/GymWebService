@@ -8,7 +8,7 @@ namespace GymWebService.Controller;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
 public class AdminController : ControllerBase
 {
     private ILogger<AdminController> _logger;
@@ -17,10 +17,17 @@ public class AdminController : ControllerBase
     private IWorkoutService _workoutService;
     private IWorkoutTemplateService _workoutTemplateService;
     
-    public AdminController(IExerciseService exerciseService, ILogger<AdminController> logger)
+    public AdminController(IExerciseService exerciseService, 
+        IUserService userService,
+        IWorkoutService workoutService,
+        IWorkoutTemplateService workoutTemplateService,
+        ILogger<AdminController> logger)
     {
-        _exerciseService = exerciseService;
         _logger = logger;
+        _exerciseService = exerciseService;
+        _userService = userService;
+        _workoutService = workoutService;
+        _workoutTemplateService = workoutTemplateService;
     }
     
     // EXERCISE ENDPOINTS
@@ -47,7 +54,6 @@ public class AdminController : ControllerBase
     }
     
     [HttpPut("updateDefaultExercise/{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ExerciseResponseDTO>> PutDefaultExercise(int id, ExerciseRequestDTO exercise)
     {
         var result = await _exerciseService.UpdateDefaultExerciseAsync(id, exercise);
@@ -55,7 +61,6 @@ public class AdminController : ControllerBase
     }
 
     [HttpDelete("deleteDefaultExercise/{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> DeleteDefaultExercise(int id)
     {
         await _exerciseService.DeleteDefaultExerciseAsync(id);
@@ -65,7 +70,6 @@ public class AdminController : ControllerBase
     
     // USER ENDPOINTS
     [HttpGet("getAllUsers")]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetAllUsers()
     {
         var result = await _userService.GetAllUsersAsync();
@@ -73,7 +77,6 @@ public class AdminController : ControllerBase
     }
     
     [HttpPost("userTokens/{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetRefreshTokens(int id)
     {
         var user = await _userService.GetByIdAsync(id);
@@ -85,7 +88,6 @@ public class AdminController : ControllerBase
     // WORKOUT TEMPLATE ENDPOINTS
     
     [HttpPost("addDefaultTemplate")]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> PostDefaultWorkoutTemplate(WorkoutTemplateRequestDTO workoutTemplateRequest)
     {
         workoutTemplateRequest.UserId = null;
@@ -94,7 +96,6 @@ public class AdminController : ControllerBase
     }
     
     [HttpGet("getAllTemplates")]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<WorkoutTemplateResponseDTO>>> GetAllWorkoutTemplates()
     {
         var result = await _workoutTemplateService.GetAllWorkoutTemplatesAsync();
@@ -102,7 +103,6 @@ public class AdminController : ControllerBase
     }
     
     [HttpGet("template/{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<WorkoutTemplateResponseDTO>> GetWorkoutTemplates(int id)
     {
         var result = await _workoutTemplateService.GetWorkoutTemplateByIdAsync(id);
@@ -110,7 +110,6 @@ public class AdminController : ControllerBase
     }
     
     [HttpPut("updateDefault/{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> PutDefaultWorkoutTemplate(int id, WorkoutTemplateRequestDTO workoutTemplateRequest)
     {
         var result = await _workoutTemplateService.UpdateDefaultWorkoutTemplateAsync(id, workoutTemplateRequest);
@@ -118,7 +117,6 @@ public class AdminController : ControllerBase
     }
     
     [HttpDelete("deleteDefault/{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> DeleteDefaultWorkoutTemplate(int id)
     {
         await _workoutTemplateService.DeleteDefaultWorkoutTemplateAsync(id);

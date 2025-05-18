@@ -61,16 +61,26 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("register")]
+    [AllowAnonymous]
     public async Task<IActionResult> RegisterAsync(RegisterModel model)
     {
         var result = await _userService.RegisterAsync(model);
         return Ok(result);
     }
     
+    
+   // 
+   // 
+   //  need to make this return 401 no authorized
+   // 
+   // 
     [HttpPost("token")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetTokenAsync(TokenRequestModel model){
         var result = await _userService.GetTokenAsync(model);
-        return Ok(result);
+        //if(result.IsAuthenticated == true)
+            return Ok(result);
+        //return BadRequest(result);
     }
 
     [HttpPost("addrole")]
@@ -92,6 +102,8 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("revoke-token")]
+    
+    
     public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest model)
     {
         // accept token from request body or cookie
