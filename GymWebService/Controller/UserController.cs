@@ -102,8 +102,6 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("revoke-token")]
-    
-    
     public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest model)
     {
         // accept token from request body or cookie

@@ -67,11 +67,12 @@ public class Program
         //await ContextSeeder.SeedEssentialsAsync(userManager, roleManager);
         
         //Configuration from AppSettings
-        builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
         
         // Adding Authentication - JWT
         if (builder.Environment.IsDevelopment())
         {
+            builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+            
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -99,6 +100,14 @@ public class Program
         }
         else 
         {
+            builder.Services.Configure<JWT>((jwt) =>
+            {
+                jwt.Audience = Environment.GetEnvironmentVariable("JWT_Audience");
+                jwt.Issuer = Environment.GetEnvironmentVariable("JWT_Issuer");
+                jwt.Key = Environment.GetEnvironmentVariable("JWT_Key");
+                jwt.DurationInMinutes = 90;
+            });
+        
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
