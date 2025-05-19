@@ -24,7 +24,7 @@ public class WorkoutRepository : GenericRepository<Workout>, IWorkoutRepository
 
     public async Task<Workout> GetUserWorkoutAsync(int userId, int id)
     {
-        var result = await table.Where(w => w.UserId == userId && w.WorkoutId == id).FirstOrDefaultAsync();
+        var result = await table.Where(w => w.UserId == userId && w.WorkoutId == id).Include(w => w.WorkoutExercises).ThenInclude(w => w.Exercise).FirstOrDefaultAsync();
         return result;
     }
 }
